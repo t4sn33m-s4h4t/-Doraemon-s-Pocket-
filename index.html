@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doraemon's Pocket</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue:      #00A8E8;
+      --blue-dark: #007AB8;
+      --yellow:    #FFD93D;
+      --white:     #FFFDF7;
+      --text:      #1A1A2E;
+      --muted:     #6B7280;
+      --border:    #E5E7EB;
+      --radius:    16px;
+    }
+
+    body { font-family: 'Nunito', sans-serif; background: var(--white); color: var(--text); min-height: 100vh; }
+
+    /* ── HEADER ── */
+    header { background: var(--blue); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,168,232,0.3); }
+
+    .header-inner {
+      width: 100%;
+      padding: 12px 24px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .logo-bell { width: 36px; height: 36px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 19px; box-shadow: 0 0 0 3px rgba(255,255,255,0.3); flex-shrink: 0; }
+    .logo-text { font-size: 1.2rem; font-weight: 900; color: #fff; white-space: nowrap; }
+
+    .search-wrap { position: relative; width: 100%; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); pointer-events: none; color: #9CA3AF; }
+
+    #searchInput {
+      width: 100%; padding: 10px 16px 10px 42px;
+      border-radius: 50px; border: 2px solid transparent;
+      font-family: 'Nunito', sans-serif; font-size: 0.95rem; font-weight: 600;
+      outline: none; background: rgba(255,255,255,0.95); color: var(--text);
+      transition: border 0.2s;
+    }
+    #searchInput:focus { border-color: var(--yellow); }
+    #searchInput::placeholder { color: #9CA3AF; font-weight: 400; }
+
+    .header-count { color: rgba(255,255,255,0.92); font-size: 0.85rem; font-weight: 800; white-space: nowrap; }
+
+    /* ── HERO ── */
+    .hero { background: linear-gradient(135deg, #009fd6 0%, #005f99 100%); padding: 30px 24px 34px; text-align: center; }
+    .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: #fff; line-height: 1.15; }
+    .hero h1 em { font-style: normal; color: var(--yellow); }
+
+    /* ── ERROR ── */
+    #errorBanner { display: none; margin: 28px auto; max-width: 540px; background: #FFF1F1; border: 1.5px solid #FECACA; border-radius: 14px; padding: 22px 24px; text-align: center; }
+    #errorBanner h3 { font-size: 1rem; font-weight: 800; color: #B91C1C; margin-bottom: 8px; }
+    #errorBanner p  { font-size: 0.85rem; color: #6B7280; line-height: 1.7; }
+    #errorBanner code { background: #FEE2E2; color: #991B1B; padding: 2px 7px; border-radius: 6px; font-size: 0.82rem; font-family: monospace; }
+
+    /* ── MAIN ── */
+    .main { width: 100%; padding: 28px 24px 64px; }
+
+    /* ── GRID: fixed columns, no orphan gaps ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: #fff; border-radius: var(--radius); border: 1.5px solid var(--border);
+      overflow: hidden; cursor: pointer; display: flex; flex-direction: column;
+      transition: transform 0.18s, box-shadow 0.18s;
+    }
+    .card:hover { transform: translateY(-5px) scale(1.015); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+
+    .card-accent { height: 5px; flex-shrink: 0; }
+
+    /* ── IMAGE AREA ── */
+    .card-img-wrap {
+      background: #F0F4F8;
+      height: 160px;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; flex-shrink: 0; position: relative;
+    }
+
+    .card-img-wrap img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      padding: 10px;
+      transition: transform 0.3s;
+    }
+    .card:hover .card-img-wrap img { transform: scale(1.07); }
+
+    /* skeleton shimmer while loading */
+    .img-skeleton {
+      position: absolute; inset: 0;
+      background: linear-gradient(90deg, #e8edf2 25%, #f4f7fa 50%, #e8edf2 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    .no-img { display: flex; flex-direction: column; align-items: center; gap: 6px; color: #CBD5E1; }
+    .no-img svg { width: 36px; height: 36px; }
+    .no-img span { font-size: 0.6rem; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+
+    .card-body { padding: 12px 14px 14px; flex: 1; display: flex; flex-direction: column; gap: 5px; }
+    .card-id   { font-size: 0.63rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .card-name { font-size: 0.95rem; font-weight: 800; color: var(--text); line-height: 1.3; }
+    .card-desc { font-size: 0.79rem; color: var(--muted); line-height: 1.5; flex: 1; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .card-footer { padding: 9px 14px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .view-btn { font-family: 'Nunito', sans-serif; font-size: 0.77rem; font-weight: 700; color: var(--blue); background: none; border: none; cursor: pointer; padding: 0; }
+
+    /* ── EMPTY ── */
+    .empty { grid-column: 1/-1; text-align: center; padding: 60px 24px; color: var(--muted); }
+    .empty svg { width: 52px; height: 52px; opacity: 0.22; margin: 0 auto 12px; display: block; }
+    .empty h3  { font-size: 1.1rem; font-weight: 800; color: var(--text); margin-bottom: 5px; }
+
+    /* ── SPINNER ── */
+    .spinner-wrap { display: flex; justify-content: center; padding: 80px; grid-column: 1/-1; }
+    .spinner { width: 44px; height: 44px; border: 4px solid var(--border); border-top-color: var(--blue); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── LOAD MORE ── */
+    .load-more-wrap { text-align: center; margin-top: 36px; }
+    #loadMoreBtn {
+      font-family: 'Nunito', sans-serif; font-size: 1rem; font-weight: 800;
+      color: #fff; background: var(--blue); border: none; border-radius: 50px;
+      padding: 13px 36px; cursor: pointer;
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 4px 14px rgba(0,168,232,0.35);
+    }
+    #loadMoreBtn:hover { background: var(--blue-dark); transform: translateY(-2px); }
+    .page-info { margin-top: 10px; font-size: 0.83rem; color: var(--muted); font-weight: 600; }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(15,23,42,0.6);
+      backdrop-filter: blur(4px); z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 16px;
+      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: auto; }
+
+    .modal {
+      background: var(--white); border-radius: 24px; max-width: 660px; width: 100%;
+      max-height: 88vh; overflow-y: auto; position: relative;
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+    .modal-accent { height: 8px; border-radius: 24px 24px 0 0; }
+
+    .modal-close {
+      position: absolute; top: 16px; right: 16px;
+      width: 34px; height: 34px; border-radius: 50%;
+      background: rgba(0,0,0,0.08); border: none; cursor: pointer;
+      font-size: 1.1rem; color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; z-index: 2;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.15); }
+
+    .modal-img-wrap {
+      background: #F0F4F8; height: 220px;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .modal-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 16px; }
+
+    .modal-body { padding: 22px 26px 28px; }
+    .modal-id    { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+    .modal-title { font-size: 1.5rem; font-weight: 900; color: var(--text); line-height: 1.2; margin-bottom: 18px; }
+
+    .modal-sections { display: flex; flex-direction: column; gap: 12px; }
+    .modal-section { border-radius: 12px; padding: 13px 15px; border-left: 4px solid; }
+    .modal-section-label { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
+    .modal-section p { font-size: 0.9rem; line-height: 1.65; color: var(--text); }
+
+    .s1{border-color:#00A8E8;background:#EFF8FD}.s1 .modal-section-label{color:#007AB8}
+    .s2{border-color:#F59E0B;background:#FFFBEB}.s2 .modal-section-label{color:#B45309}
+    .s3{border-color:#4ADE80;background:#F0FDF4}.s3 .modal-section-label{color:#166534}
+    .s4{border-color:#C084FC;background:#FAF5FF}.s4 .modal-section-label{color:#7E22CE}
+    .s5{border-color:#FF6B6B;background:#FFF1F1}.s5 .modal-section-label{color:#B91C1C}
+    .s6{border-color:#F97316;background:#FFF7ED}.s6 .modal-section-label{color:#C2410C}
+    .s7{border-color:#06B6D4;background:#ECFEFF}.s7 .modal-section-label{color:#0E7490}
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 768px)  {
+      .header-inner { padding: 10px 14px; gap: 10px; }
+      .logo-text { font-size: 1rem; }
+      .logo-bell { width: 30px; height: 30px; font-size: 15px; }
+      .hero { padding: 22px 14px 26px; }
+      .main { padding: 18px 12px 48px; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+      .card-img-wrap { height: 130px; }
+      .card-body { padding: 9px 10px 11px; }
+      .card-name { font-size: 0.87rem; }
+      .modal-body { padding: 16px 16px 22px; }
+      .modal-title { font-size: 1.2rem; }
+      .modal-img-wrap { height: 170px; }
+    }
+    @media (max-width: 480px) {
+      .header-inner { grid-template-columns: auto 1fr; }
+      .header-count { display: none; }
+      .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo" href="#">
+      <div class="logo-bell">🔔</div>
+      <div class="logo-text">Doraemon's Pocket</div>
+    </a>
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" placeholder="Search gadgets…" autocomplete="off" />
+    </div>
+    <div class="header-count" id="headerCount"></div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>Explore the <em>4D Pocket</em></h1>
+</section>
+
+ <div id="errorBanner">
+  <h3>Could not load gadget data</h3>
+  <p>Please make sure <code>doraemon_processed.json</code> is available.</p>
+</div>
+
+<main class="main">
+  <div class="grid" id="grid">
+    <div class="spinner-wrap"><div class="spinner"></div></div>
+  </div>
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button id="loadMoreBtn">Load More Gadgets ↓</button>
+    <p class="page-info" id="pageInfo"></p>
+  </div>
+</main>
+
+<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal">
+    <div class="modal-accent" id="modalAccent"></div>
+    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
+    <div class="modal-img-wrap" id="modalImgWrap"></div>
+    <div class="modal-body">
+      <div class="modal-id" id="modalId"></div>
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-sections" id="modalSections"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+var COLORS = ['#00A8E8','#FFD93D','#4ADE80','#C084FC','#FF6B6B','#F97316','#06B6D4','#A78BFA','#34D399','#FB923C'];
+var PAGE_SIZE = 24;
+var allGadgets = [];
+var filtered = [];
+var currentPage = 0;  /* renamed from 'page' to avoid any collision */
+
+function colorFor(id) {
+  return COLORS[Math.abs(id || 0) % COLORS.length];
+}
+
+function noImgHTML() {
+  return '<div class="no-img">'
+    + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">'
+    + '<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/>'
+    + '<polyline points="21 15 16 10 5 21"/><line x1="2" y1="2" x2="22" y2="22"/>'
+    + '</svg><span>No Image</span></div>';
+}
+
+function initData(data) {
+  allGadgets = Array.isArray(data) ? data : (data.gadgets ? data.gadgets : Object.values(data));
+  allGadgets.sort(function(a, b) { return (a.id || 0) - (b.id || 0); });
+  filtered = allGadgets.slice();
+  document.getElementById('headerCount').textContent = allGadgets.length + ' Gadgets';
+  renderPage(true);
+}
+
+function makeImgWrap(g, modalMode) {
+  var url    = g.image_url ;
+  var height = modalMode ? '220px' : '160px';
+  var cls    = modalMode ? 'modal-img-wrap' : 'card-img-wrap';
+
+  var wrap = document.createElement('div');
+  wrap.className = cls;
+
+  if (!url) {
+    wrap.innerHTML = noImgHTML();
+    return wrap;
+  }
+
+  /* skeleton shown while image loads */
+  var skeleton = document.createElement('div');
+  skeleton.className = 'img-skeleton';
+  wrap.appendChild(skeleton);
+
+  var img = document.createElement('img');
+  img.alt     = g.name || '';
+  img.loading = 'lazy';
+
+  img.onload = function() {
+    /* remove skeleton once loaded */
+    var sk = wrap.querySelector('.img-skeleton');
+    if (sk) sk.parentNode.removeChild(sk);
+  };
+
+  img.onerror = function() {
+    wrap.innerHTML = noImgHTML();
+  };
+
+  /* set src last so onload/onerror are attached first */
+  img.src = url;
+
+  wrap.appendChild(img);
+  return wrap;
+}
+
+function renderPage(reset) {
+  var grid = document.getElementById('grid');
+
+  if (reset) {
+    currentPage = 0;
+    grid.innerHTML = '';
+  }
+
+  var start = currentPage * PAGE_SIZE;
+  var chunk = filtered.slice(start, start + PAGE_SIZE);
+
+  if (reset && filtered.length === 0) {
+    grid.innerHTML = '<div class="empty">'
+      + '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">'
+      + '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>'
+      + '<h3>No gadgets found</h3><p>Try a different search term.</p></div>';
+    document.getElementById('loadMoreWrap').style.display = 'none';
+    return;
+  }
+
+  for (var i = 0; i < chunk.length; i++) {
+    var g = chunk[i];
+    var c = colorFor(g.id);
+    var desc = (g.what_it_is || g.how_it_works || 'A mysterious gadget from the 4D pocket.').slice(0, 180);
+
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.setAttribute('tabindex', '0');
+    card.setAttribute('role', 'button');
+
+    /* accent bar */
+    var accent = document.createElement('div');
+    accent.className = 'card-accent';
+    accent.style.background = c;
+    card.appendChild(accent);
+
+    /* image */
+    card.appendChild(makeImgWrap(g, false));
+
+    /* body */
+    var body = document.createElement('div');
+    body.className = 'card-body';
+    body.innerHTML =
+      '<div class="card-id">Gadget #' + (g.id || '?') + '</div>'
+      + '<div class="card-name">' + (g.name || 'Unknown Gadget') + '</div>'
+      + '<div class="card-desc">' + desc + '</div>';
+    card.appendChild(body);
+
+    /* footer */
+    var footer = document.createElement('div');
+    footer.className = 'card-footer';
+    footer.innerHTML = '<button class="view-btn">View Details &rarr;</button>';
+    card.appendChild(footer);
+
+    (function(gadget) {
+      card.addEventListener('click', function() { openModal(gadget); });
+      card.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') openModal(gadget);
+      });
+    })(g);
+
+    grid.appendChild(card);
+  }
+
+  currentPage++;
+
+  /* Load More: only show if there are items beyond what we just added */
+  var totalShown = currentPage * PAGE_SIZE;
+  var remaining  = filtered.length - (currentPage - 1) * PAGE_SIZE - chunk.length;
+  /* simpler: items not yet shown */
+  var alreadyShown = Math.min(currentPage * PAGE_SIZE, filtered.length);
+
+  updateLoadMore();
+}
+
+function updateLoadMore() {
+  var wrap  = document.getElementById('loadMoreWrap');
+  var btn   = document.getElementById('loadMoreBtn');
+  var info  = document.getElementById('pageInfo');
+
+  /* how many cards are actually in the DOM */
+  var shownCount = document.getElementById('grid').querySelectorAll('.card').length;
+  var total      = filtered.length;
+
+  if (total === 0) { wrap.style.display = 'none'; return; }
+
+  info.textContent = 'Showing ' + shownCount + ' of ' + total + ' gadgets';
+  wrap.style.display = 'block';
+
+  /* show button only if more items remain */
+  btn.style.display = shownCount < total ? 'inline-block' : 'none';
+}
+
+document.getElementById('loadMoreBtn').addEventListener('click', function() { renderPage(false); });
+
+/* ── SEARCH ── */
+var searchTimer;
+document.getElementById('searchInput').addEventListener('input', function(e) {
+  clearTimeout(searchTimer);
+  var q = e.target.value.trim().toLowerCase();
+  searchTimer = setTimeout(function() {
+    filtered = q
+      ? allGadgets.filter(function(g) {
+          return (g.name || '').toLowerCase().indexOf(q) !== -1
+            || (g.what_it_is || '').toLowerCase().indexOf(q) !== -1
+            || (g.how_it_works || '').toLowerCase().indexOf(q) !== -1;
+        })
+      : allGadgets.slice();
+    renderPage(true);
+  }, 200);
+});
+
+/* ── MODAL ── */
+var sectionDefs = [
+  { key: 'what_it_is',           label: 'What it is',           cls: 's1' },
+  { key: 'its_appearance',       label: 'Appearance',           cls: 's2' },
+  { key: 'how_it_works',         label: 'How it works',         cls: 's3' },
+  { key: 'rules_and_limits',     label: 'Rules & Limits',       cls: 's4' },
+  { key: 'real_life_equivalent', label: 'Real-life Equivalent', cls: 's5' },
+  { key: 'the_big_mistake',      label: 'The Big Mistake',      cls: 's6' },
+  { key: 'fun_fact',             label: 'Fun Fact',             cls: 's7' }
+];
+
+function openModal(g) {
+  var c = colorFor(g.id);
+  document.getElementById('modalAccent').style.background = c;
+  document.getElementById('modalId').textContent    = 'Gadget #' + (g.id || '?');
+  document.getElementById('modalTitle').textContent = g.name || 'Unknown Gadget';
+
+  var imgWrap = document.getElementById('modalImgWrap');
+  imgWrap.innerHTML = '';
+
+  var url = (g.image_url || '').trim();
+  if (url) {
+    var skeleton = document.createElement('div');
+    skeleton.className = 'img-skeleton';
+    imgWrap.appendChild(skeleton);
+
+    var img = document.createElement('img');
+    img.alt     = g.name || '';
+    img.loading = 'lazy';
+    img.onload  = function() { var sk = imgWrap.querySelector('.img-skeleton'); if(sk) sk.parentNode.removeChild(sk); };
+    img.onerror = function() { imgWrap.innerHTML = noImgHTML(); };
+    img.src = url;
+    imgWrap.appendChild(img);
+  } else {
+    imgWrap.innerHTML = noImgHTML();
+  }
+
+  var html = '';
+  for (var i = 0; i < sectionDefs.length; i++) {
+    var s = sectionDefs[i];
+    if (g[s.key] && g[s.key].trim() !== '') {
+      html += '<div class="modal-section ' + s.cls + '">'
+        + '<div class="modal-section-label">' + s.label + '</div>'
+        + '<p>' + g[s.key] + '</p></div>';
+    }
+  }
+  document.getElementById('modalSections').innerHTML = html
+    || '<div class="modal-section s1"><div class="modal-section-label">Info</div><p>No details available yet.</p></div>';
+
+  document.getElementById('modalOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('modalClose').focus();
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', function(e) { if(e.target===this) closeModal(); });
+document.addEventListener('keydown', function(e) { if(e.key==='Escape') closeModal(); });
+
+/* ── LOAD JSON ── */
+fetch('doraemon_processed.json')
+  .then(function(r) { if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
+  .then(function(data) { initData(data); })
+  .catch(function() {
+    document.getElementById('grid').innerHTML = '';
+    document.getElementById('errorBanner').style.display = 'block';
+    document.getElementById('headerCount').textContent = 'Error';
+  });
+</script>
+</body>
+</html>
