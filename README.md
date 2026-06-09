@@ -1,7 +1,5 @@
 <div align="center">
-
-<img src="https://upload.wikimedia.org/wikipedia/en/b/b5/Doraemon_character.png" width="90" alt="Doraemon" />
-
+ 
 # 🔔 Doraemon's Pocket
 
 ### A searchable encyclopedia of every gadget from Doraemon's 4D Pocket
@@ -172,14 +170,8 @@ fetch('doraemon_processed.json')
 
 ## 📜 Disclaimer
 
-This is a fan project made for educational and personal use. Doraemon and all related characters, gadgets, and intellectual property belong to **Fujiko F. Fujio** and **Shogakukan**. No copyright infringement intended.
+This is a fan project made for nothing.  
 
 ---
 
-<div align="center">
-
-Made with 💙 by [t4sn33m-s4h4t](https://github.com/t4sn33m-s4h4t)
-
-⭐ Star this repo if you find it useful!
-
-</div>
+ 
