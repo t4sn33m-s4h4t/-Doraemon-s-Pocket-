@@ -27,8 +27,9 @@
     header { background: var(--blue); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,168,232,0.3); }
 
     .header-inner {
-      width: 100%;
-      padding: 12px 24px;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 12px 28px;
       display: grid;
       grid-template-columns: auto 1fr auto;
       align-items: center;
@@ -56,6 +57,7 @@
 
     /* ── HERO ── */
     .hero { background: linear-gradient(135deg, #009fd6 0%, #005f99 100%); padding: 30px 24px 34px; text-align: center; }
+    .hero-inner { max-width: 1400px; margin: 0 auto; }
     .hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); font-weight: 900; color: #fff; line-height: 1.15; }
     .hero h1 em { font-style: normal; color: var(--yellow); }
 
@@ -66,13 +68,19 @@
     #errorBanner code { background: #FEE2E2; color: #991B1B; padding: 2px 7px; border-radius: 6px; font-size: 0.82rem; font-family: monospace; }
 
     /* ── MAIN ── */
-    .main { width: 100%; padding: 28px 24px 64px; }
+    .main { width: 100%; padding: 28px 0 64px; }
+
+    .grid-wrap {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
 
     /* ── GRID: fixed columns, no orphan gaps ── */
     .grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 18px;
+      gap: 20px;
     }
 
     /* ── CARD ── */
@@ -203,10 +211,11 @@
       .logo-text { font-size: 1rem; }
       .logo-bell { width: 30px; height: 30px; font-size: 15px; }
       .hero { padding: 22px 14px 26px; }
-      .main { padding: 18px 12px 48px; }
+      .grid-wrap { padding: 0 14px; }
+      .main { padding: 18px 0 48px; }
       .grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
       .card-img-wrap { height: 130px; }
-      .card-body { padding: 9px 10px 11px; }
+      .card-body { padding: 9px 12px 11px; }
       .card-name { font-size: 0.87rem; }
       .modal-body { padding: 16px 16px 22px; }
       .modal-title { font-size: 1.2rem; }
@@ -215,6 +224,7 @@
     @media (max-width: 480px) {
       .header-inner { grid-template-columns: auto 1fr; }
       .header-count { display: none; }
+      .grid-wrap { padding: 0 10px; }
       .grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     }
   </style>
@@ -236,7 +246,9 @@
 </header>
 
 <section class="hero">
-  <h1>Explore the <em>4D Pocket</em></h1>
+  <div class="hero-inner">
+    <h1>Explore the <em>4D Pocket</em></h1>
+  </div>
 </section>
 
 <div id="errorBanner">
@@ -249,12 +261,14 @@
 </div>
 
 <main class="main">
-  <div class="grid" id="grid">
-    <div class="spinner-wrap"><div class="spinner"></div></div>
-  </div>
-  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
-    <button id="loadMoreBtn">Load More Gadgets ↓</button>
-    <p class="page-info" id="pageInfo"></p>
+  <div class="grid-wrap">
+    <div class="grid" id="grid">
+      <div class="spinner-wrap"><div class="spinner"></div></div>
+    </div>
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+      <button id="loadMoreBtn">Load More Gadgets ↓</button>
+      <p class="page-info" id="pageInfo"></p>
+    </div>
   </div>
 </main>
 
@@ -299,41 +313,39 @@ function initData(data) {
 }
 
 function makeImgWrap(g, modalMode) {
-  var url    = (g.image_url || '').trim();
-  var height = modalMode ? '220px' : '160px';
+  var rawUrl = (g.image_url || '').trim();
   var cls    = modalMode ? 'modal-img-wrap' : 'card-img-wrap';
-
-  var wrap = document.createElement('div');
+  var wrap   = document.createElement('div');
   wrap.className = cls;
 
-  if (!url) {
-    wrap.innerHTML = noImgHTML();
-    return wrap;
-  }
+  if (!rawUrl) { wrap.innerHTML = noImgHTML(); return wrap; }
 
-  /* skeleton shown while image loads */
   var skeleton = document.createElement('div');
   skeleton.className = 'img-skeleton';
   wrap.appendChild(skeleton);
 
   var img = document.createElement('img');
-  img.alt              = g.name || '';
-  img.loading          = 'lazy';
-  img.referrerPolicy   = 'no-referrer';
+  img.alt            = g.name || '';
+  img.loading        = 'lazy';
+  img.referrerPolicy = 'no-referrer';
+
+  var tried = 0;
+  var urls = [
+    rawUrl,
+    'https://images.weserv.nl/?url=' + encodeURIComponent(rawUrl) + '&output=png&n=-1'
+  ];
 
   img.onload = function() {
-    /* remove skeleton once loaded */
     var sk = wrap.querySelector('.img-skeleton');
     if (sk) sk.parentNode.removeChild(sk);
   };
-
   img.onerror = function() {
-    wrap.innerHTML = noImgHTML();
+    tried++;
+    if (tried < urls.length) { img.src = urls[tried]; }
+    else { wrap.innerHTML = noImgHTML(); }
   };
 
-  /* set src last so onload/onerror are attached first */
-  img.src = url;
-
+  img.src = urls[tried];
   wrap.appendChild(img);
   return wrap;
 }
@@ -469,24 +481,9 @@ function openModal(g) {
 
   var imgWrap = document.getElementById('modalImgWrap');
   imgWrap.innerHTML = '';
-
-  var url = (g.image_url || '').trim();
-  if (url) {
-    var skeleton = document.createElement('div');
-    skeleton.className = 'img-skeleton';
-    imgWrap.appendChild(skeleton);
-
-    var img = document.createElement('img');
-    img.alt            = g.name || '';
-    img.loading        = 'lazy';
-    img.referrerPolicy = 'no-referrer';
-    img.onload  = function() { var sk = imgWrap.querySelector('.img-skeleton'); if(sk) sk.parentNode.removeChild(sk); };
-    img.onerror = function() { imgWrap.innerHTML = noImgHTML(); };
-    img.src = url;
-    imgWrap.appendChild(img);
-  } else {
-    imgWrap.innerHTML = noImgHTML();
-  }
+  /* reuse makeImgWrap for modal too */
+  var mWrap = makeImgWrap(g, true);
+  while (mWrap.firstChild) imgWrap.appendChild(mWrap.firstChild);
 
   var html = '';
   for (var i = 0; i < sectionDefs.length; i++) {
