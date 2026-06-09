@@ -154,56 +154,169 @@
 
     /* ── MODAL ── */
     .modal-overlay {
-      position: fixed; inset: 0; background: rgba(15,23,42,0.6);
-      backdrop-filter: blur(4px); z-index: 1000;
+      position: fixed; inset: 0;
+      background: rgba(10,18,38,0.65);
+      backdrop-filter: blur(6px);
+      z-index: 1000;
       display: flex; align-items: center; justify-content: center; padding: 16px;
-      opacity: 0; pointer-events: none; transition: opacity 0.2s;
+      opacity: 0; pointer-events: none; transition: opacity 0.22s;
     }
     .modal-overlay.open { opacity: 1; pointer-events: auto; }
 
     .modal {
-      background: var(--white); border-radius: 24px; max-width: 660px; width: 100%;
-      max-height: 88vh; overflow-y: auto; position: relative;
-      transform: translateY(24px) scale(0.97);
-      transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1);
+      background: #fff;
+      border-radius: 28px;
+      max-width: 760px; width: 100%;
+      max-height: 90vh; overflow-y: auto; position: relative;
+      transform: translateY(32px) scale(0.96);
+      transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+      box-shadow: 0 32px 80px rgba(0,0,0,0.22);
     }
     .modal-overlay.open .modal { transform: translateY(0) scale(1); }
 
-    .modal-accent { height: 8px; border-radius: 24px 24px 0 0; }
-
-    .modal-close {
-      position: absolute; top: 16px; right: 16px;
-      width: 34px; height: 34px; border-radius: 50%;
-      background: rgba(0,0,0,0.08); border: none; cursor: pointer;
-      font-size: 1.1rem; color: var(--text);
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s; z-index: 2;
+    /* ── hero image block ── */
+    .modal-hero {
+      position: relative;
+      height: 260px;
+      overflow: hidden;
+      border-radius: 28px 28px 0 0;
+      background: #e8f4fb;
     }
-    .modal-close:hover { background: rgba(0,0,0,0.15); }
+
+    .modal-hero-bg {
+      position: absolute; inset: 0;
+      opacity: 0.12;
+      background-size: cover; background-position: center;
+      filter: blur(18px) saturate(1.4);
+      transform: scale(1.1);
+    }
+
+    .modal-hero-gradient {
+      position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.32) 100%);
+      z-index: 1;
+    }
+
+    .modal-accent-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 5px; z-index: 3;
+    }
 
     .modal-img-wrap {
-      background: #F0F4F8; height: 220px;
+      position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      overflow: hidden; position: relative;
+      z-index: 2;
     }
-    .modal-img-wrap img { width: 100%; height: 100%; object-fit: contain; padding: 16px; position: relative; z-index: 1; }
+    .modal-img-wrap img {
+      max-height: 200px; max-width: 75%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.18));
+      position: relative; z-index: 1;
+      transition: opacity 0.25s;
+    }
 
-    .modal-body { padding: 22px 26px 28px; }
-    .modal-id    { font-size: 0.68rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
-    .modal-title { font-size: 1.5rem; font-weight: 900; color: var(--text); line-height: 1.2; margin-bottom: 18px; }
+    .modal-close {
+      position: absolute; top: 14px; right: 14px;
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.18);
+      backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255,255,255,0.35);
+      cursor: pointer; font-size: 1rem; color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; z-index: 10;
+    }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
 
-    .modal-sections { display: flex; flex-direction: column; gap: 12px; }
-    .modal-section { border-radius: 12px; padding: 13px 15px; border-left: 4px solid; }
-    .modal-section-label { font-size: 0.67rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 5px; }
-    .modal-section p { font-size: 0.9rem; line-height: 1.65; color: var(--text); }
+    /* ── info strip below image ── */
+    .modal-info-strip {
+      padding: 18px 28px 0;
+      display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+    }
 
-    .s1{border-color:#00A8E8;background:#EFF8FD}.s1 .modal-section-label{color:#007AB8}
-    .s2{border-color:#F59E0B;background:#FFFBEB}.s2 .modal-section-label{color:#B45309}
-    .s3{border-color:#4ADE80;background:#F0FDF4}.s3 .modal-section-label{color:#166534}
-    .s4{border-color:#C084FC;background:#FAF5FF}.s4 .modal-section-label{color:#7E22CE}
-    .s5{border-color:#FF6B6B;background:#FFF1F1}.s5 .modal-section-label{color:#B91C1C}
-    .s6{border-color:#F97316;background:#FFF7ED}.s6 .modal-section-label{color:#C2410C}
-    .s7{border-color:#06B6D4;background:#ECFEFF}.s7 .modal-section-label{color:#0E7490}
+    .modal-title-block { flex: 1; }
+
+    .modal-id-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 0.68rem; font-weight: 800; letter-spacing: 0.8px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 50px;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .modal-title {
+      font-size: 1.6rem; font-weight: 900; color: var(--text);
+      line-height: 1.2; margin: 0;
+    }
+
+    /* ── divider ── */
+    .modal-divider {
+      height: 1px; background: var(--border);
+      margin: 18px 28px 0;
+    }
+
+    /* ── sections body ── */
+    .modal-body { padding: 18px 28px 32px; }
+
+    .modal-sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* wide sections span both cols */
+    .modal-section.wide { grid-column: 1 / -1; }
+
+    .modal-section {
+      border-radius: 14px; padding: 14px 16px;
+      border: 1.5px solid transparent;
+      position: relative; overflow: hidden;
+    }
+
+    .modal-section-icon {
+      font-size: 1.1rem; margin-bottom: 6px; display: block; line-height: 1;
+    }
+
+    .modal-section-label {
+      font-size: 0.65rem; font-weight: 800;
+      letter-spacing: 0.9px; text-transform: uppercase;
+      margin-bottom: 5px; display: block;
+    }
+
+    .modal-section p {
+      font-size: 0.875rem; line-height: 1.68; color: #374151; margin: 0;
+    }
+
+    .s1 { background: #EFF8FD; border-color: #BAE6FD; }
+    .s1 .modal-section-label { color: #0369A1; }
+
+    .s2 { background: #FFFBEB; border-color: #FDE68A; }
+    .s2 .modal-section-label { color: #92400E; }
+
+    .s3 { background: #F0FDF4; border-color: #BBF7D0; }
+    .s3 .modal-section-label { color: #166534; }
+
+    .s4 { background: #FAF5FF; border-color: #E9D5FF; }
+    .s4 .modal-section-label { color: #6B21A8; }
+
+    .s5 { background: #FFF1F2; border-color: #FECDD3; }
+    .s5 .modal-section-label { color: #9F1239; }
+
+    .s6 { background: #FFF7ED; border-color: #FED7AA; }
+    .s6 .modal-section-label { color: #9A3412; }
+
+    .s7 { background: #ECFEFF; border-color: #A5F3FC; }
+    .s7 .modal-section-label { color: #0E7490; }
+
+    @media (max-width: 600px) {
+      .modal { border-radius: 20px; }
+      .modal-hero { height: 200px; border-radius: 20px 20px 0 0; }
+      .modal-info-strip { padding: 14px 18px 0; }
+      .modal-title { font-size: 1.25rem; }
+      .modal-divider { margin: 14px 18px 0; }
+      .modal-body { padding: 14px 18px 24px; }
+      .modal-sections { grid-template-columns: 1fr; }
+      .modal-section.wide { grid-column: 1; }
+    }
 
     /* ── RESPONSIVE ── */
     @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
@@ -275,12 +388,24 @@
 
 <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="modal">
-    <div class="modal-accent" id="modalAccent"></div>
-    <button class="modal-close" id="modalClose" aria-label="Close">✕</button>
-    <div class="modal-img-wrap" id="modalImgWrap"></div>
+    <!-- hero image area -->
+    <div class="modal-hero" id="modalHero">
+      <div class="modal-hero-bg"    id="modalHeroBg"></div>
+      <div class="modal-hero-gradient"></div>
+      <div class="modal-accent-bar" id="modalAccent"></div>
+      <div class="modal-img-wrap"   id="modalImgWrap"></div>
+      <button class="modal-close"   id="modalClose" aria-label="Close">✕</button>
+    </div>
+    <!-- info strip -->
+    <div class="modal-info-strip">
+      <div class="modal-title-block">
+        <div class="modal-id-badge" id="modalBadge"></div>
+        <h2 class="modal-title" id="modalTitle"></h2>
+      </div>
+    </div>
+    <div class="modal-divider"></div>
+    <!-- sections -->
     <div class="modal-body">
-      <div class="modal-id" id="modalId"></div>
-      <h2 class="modal-title" id="modalTitle"></h2>
       <div class="modal-sections" id="modalSections"></div>
     </div>
   </div>
@@ -468,31 +593,47 @@ document.getElementById('searchInput').addEventListener('input', function(e) {
   }, 200);
 });
 
-/* ── MODAL ── */
 var sectionDefs = [
-  { key: 'what_it_is',           label: 'What it is',           cls: 's1' },
-  { key: 'its_appearance',       label: 'Appearance',           cls: 's2' },
-  { key: 'how_it_works',         label: 'How it works',         cls: 's3' },
-  { key: 'rules_and_limits',     label: 'Rules & Limits',       cls: 's4' },
-  { key: 'real_life_equivalent', label: 'Real-life Equivalent', cls: 's5' },
-  { key: 'the_big_mistake',      label: 'The Big Mistake',      cls: 's6' },
-  { key: 'fun_fact',             label: 'Fun Fact',             cls: 's7' }
+  { key: 'what_it_is',           label: 'What it is',           cls: 's1', icon: '🔍', wide: true  },
+  { key: 'how_it_works',         label: 'How it works',         cls: 's3', icon: '⚙️', wide: true  },
+  { key: 'its_appearance',       label: 'Appearance',           cls: 's2', icon: '👁️', wide: false },
+  { key: 'rules_and_limits',     label: 'Rules & Limits',       cls: 's4', icon: '📏', wide: false },
+  { key: 'real_life_equivalent', label: 'Real-life Equivalent', cls: 's5', icon: '🌍', wide: false },
+  { key: 'the_big_mistake',      label: 'The Big Mistake',      cls: 's6', icon: '⚠️', wide: false },
+  { key: 'fun_fact',             label: 'Fun Fact',             cls: 's7', icon: '🌟', wide: true  }
 ];
 
 function openModal(g) {
   var c = colorFor(g.id);
+
+  /* accent bar */
   document.getElementById('modalAccent').style.background = c;
-  document.getElementById('modalId').textContent    = 'Gadget #' + (g.id || '?');
+
+  /* badge */
+  var badge = document.getElementById('modalBadge');
+  badge.textContent = '# ' + (g.id || '?');
+  badge.style.background = c;
+
+  /* title */
   document.getElementById('modalTitle').textContent = g.name || 'Unknown Gadget';
 
+  /* hero blurred bg */
+  var heroBg = document.getElementById('modalHeroBg');
+  var rawUrl = (g.image_url || '').trim();
+  if (rawUrl) {
+    heroBg.style.backgroundImage = 'url("' + rawUrl + '")';
+    heroBg.style.display = 'block';
+  } else {
+    heroBg.style.display = 'none';
+  }
+
+  /* hero image */
   var imgWrap = document.getElementById('modalImgWrap');
   imgWrap.innerHTML = '';
 
-  var rawUrl = (g.image_url || '').trim();
   if (!rawUrl) {
     imgWrap.innerHTML = noImgHTML();
   } else {
-    /* skeleton */
     var sk = document.createElement('div');
     sk.className = 'img-skeleton';
     imgWrap.appendChild(sk);
@@ -501,7 +642,7 @@ function openModal(g) {
     mImg.alt            = g.name || '';
     mImg.referrerPolicy = 'no-referrer';
     mImg.style.opacity  = '0';
-    mImg.style.transition = 'opacity 0.25s';
+    mImg.style.transition = 'opacity 0.3s';
 
     var mTried = 0;
     var mUrls  = [
@@ -510,34 +651,33 @@ function openModal(g) {
     ];
 
     mImg.onload = function() {
-      /* remove skeleton, fade in image */
       if (sk.parentNode) sk.parentNode.removeChild(sk);
       mImg.style.opacity = '1';
     };
     mImg.onerror = function() {
       mTried++;
-      if (mTried < mUrls.length) {
-        mImg.src = mUrls[mTried];
-      } else {
-        imgWrap.innerHTML = noImgHTML();
-      }
+      if (mTried < mUrls.length) { mImg.src = mUrls[mTried]; }
+      else { imgWrap.innerHTML = noImgHTML(); }
     };
 
     imgWrap.appendChild(mImg);
     mImg.src = mUrls[mTried];
   }
 
+  /* sections */
   var html = '';
   for (var i = 0; i < sectionDefs.length; i++) {
     var s = sectionDefs[i];
     if (g[s.key] && g[s.key].trim() !== '') {
-      html += '<div class="modal-section ' + s.cls + '">'
-        + '<div class="modal-section-label">' + s.label + '</div>'
-        + '<p>' + g[s.key] + '</p></div>';
+      html += '<div class="modal-section ' + s.cls + (s.wide ? ' wide' : '') + '">'
+        + '<span class="modal-section-icon">' + s.icon + '</span>'
+        + '<span class="modal-section-label">' + s.label + '</span>'
+        + '<p>' + g[s.key] + '</p>'
+        + '</div>';
     }
   }
   document.getElementById('modalSections').innerHTML = html
-    || '<div class="modal-section s1"><div class="modal-section-label">Info</div><p>No details available yet.</p></div>';
+    || '<div class="modal-section s1 wide"><span class="modal-section-icon">🔍</span><span class="modal-section-label">Info</span><p>No details available yet.</p></div>';
 
   document.getElementById('modalOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
