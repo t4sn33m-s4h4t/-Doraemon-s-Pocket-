@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="referrer" content="no-referrer" />
   <title>Doraemon's Pocket</title>
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
@@ -297,19 +298,8 @@ function initData(data) {
   renderPage(true);
 }
 
-/* Fandom/Wikia CDN blocks hotlinking via the /revision/latest?cb=... form.
-   The raw .png/.jpg URL (before /revision/) loads fine. Strip the suffix. */
-function cleanImgUrl(url) {
-  if (!url) return '';
-  url = url.trim();
-  /* Remove everything from /revision/ onward */
-  var revIdx = url.indexOf('/revision/');
-  if (revIdx !== -1) url = url.substring(0, revIdx);
-  return url;
-}
-
 function makeImgWrap(g, modalMode) {
-  var url    = cleanImgUrl(g.image_url);
+  var url    = (g.image_url || '').trim();
   var height = modalMode ? '220px' : '160px';
   var cls    = modalMode ? 'modal-img-wrap' : 'card-img-wrap';
 
@@ -327,8 +317,9 @@ function makeImgWrap(g, modalMode) {
   wrap.appendChild(skeleton);
 
   var img = document.createElement('img');
-  img.alt     = g.name || '';
-  img.loading = 'lazy';
+  img.alt              = g.name || '';
+  img.loading          = 'lazy';
+  img.referrerPolicy   = 'no-referrer';
 
   img.onload = function() {
     /* remove skeleton once loaded */
@@ -479,15 +470,16 @@ function openModal(g) {
   var imgWrap = document.getElementById('modalImgWrap');
   imgWrap.innerHTML = '';
 
-  var url = cleanImgUrl(g.image_url);
+  var url = (g.image_url || '').trim();
   if (url) {
     var skeleton = document.createElement('div');
     skeleton.className = 'img-skeleton';
     imgWrap.appendChild(skeleton);
 
     var img = document.createElement('img');
-    img.alt     = g.name || '';
-    img.loading = 'lazy';
+    img.alt            = g.name || '';
+    img.loading        = 'lazy';
+    img.referrerPolicy = 'no-referrer';
     img.onload  = function() { var sk = imgWrap.querySelector('.img-skeleton'); if(sk) sk.parentNode.removeChild(sk); };
     img.onerror = function() { imgWrap.innerHTML = noImgHTML(); };
     img.src = url;
